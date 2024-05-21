@@ -1,10 +1,14 @@
+// API key for OpenWeatherMap API
 const apiKey = 'dd945fd9462ea92b706ca988b2ebaabc';
+
+// DOM elements
 const searchForm = document.getElementById('search-form');
 const cityInput = document.getElementById('city-input');
 const currentWeather = document.getElementById('current-weather');
 const forecast = document.getElementById('forecast');
 const history = document.getElementById('history');
 
+// Event listener for form submission
 searchForm.addEventListener('submit', function (event) {
     event.preventDefault();
     const city = cityInput.value.trim();
@@ -13,12 +17,14 @@ searchForm.addEventListener('submit', function (event) {
     }
 });
 
+// Event listener for history click
 history.addEventListener('click', function (event) {
     if (event.target.tagName === 'LI') {
         getCoordinates(event.target.textContent);
     }
 });
 
+// Function to fetch coordinates of a city
 function getCoordinates(city) {
     fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`)
         .then(response => response.json())
@@ -33,6 +39,7 @@ function getCoordinates(city) {
         });
 }
 
+// Function to fetch weather data using coordinates
 function getWeather(lat, lon, city) {
     fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
         .then(response => response.json())
@@ -42,11 +49,12 @@ function getWeather(lat, lon, city) {
         });
 }
 
+// Function to display current weather
 function displayCurrentWeather(data, city) {
     currentWeather.innerHTML = `
         <div class="weather-card">
             <h3>${city} (${new Date(data.dt_txt).toLocaleDateString()})</h3>
-            <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}">
+            <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png">
             <p>Temp: ${data.main.temp} °C</p>
             <p>Humidity: ${data.main.humidity}%</p>
             <p>Wind: ${data.wind.speed} m/s</p>
@@ -54,6 +62,7 @@ function displayCurrentWeather(data, city) {
     `;
 }
 
+// Function to display forecast
 function displayForecast(data) {
     forecast.innerHTML = '';
     for (let i = 0; i < data.length; i += 8) {
@@ -61,7 +70,7 @@ function displayForecast(data) {
         forecast.innerHTML += `
             <div class="weather-card">
                 <h3>${new Date(weather.dt_txt).toLocaleDateString()}</h3>
-                <img src="https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png" alt="${weather.weather[0].description}">
+                <img src="https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png">
                 <p>Temp: ${weather.main.temp} °C</p>
                 <p>Humidity: ${weather.main.humidity}%</p>
                 <p>Wind: ${weather.wind.speed} m/s</p>
@@ -70,6 +79,7 @@ function displayForecast(data) {
     }
 }
 
+// Function to save searched city to history
 function saveToHistory(city) {
     let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
     if (!searchHistory.includes(city)) {
@@ -79,6 +89,7 @@ function saveToHistory(city) {
     }
 }
 
+// Function to update search history display
 function updateHistory() {
     let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
     history.innerHTML = '';
@@ -87,4 +98,5 @@ function updateHistory() {
     });
 }
 
+// Initial update of search history display
 updateHistory();
